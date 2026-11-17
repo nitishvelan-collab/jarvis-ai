@@ -239,7 +239,148 @@ function startVoice() {
   recognition.start();
 }
 
-</script>
+
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const question = input.value.trim();
+
+  if (!question) return;
+
+  const message = document.getElementById("message");
+  const q = question.toLowerCase();
+  let reply = "";
+
+  if (q.includes("hello") || q.includes("hi")) {
+    reply = "Hello! Welcome back. How can I help you?";
+  }
+  else if (q.includes("time")) {
+    reply = "The current time is " +
+      new Date().toLocaleTimeString("en-IN");
+  }
+  else if (q.includes("date") || q.includes("today")) {
+    reply = "Today's date is " +
+      new Date().toLocaleDateString("en-IN");
+  }
+  else if (q.includes("day")) {
+    reply = "Today is " +
+      new Date().toLocaleDateString("en-IN", {
+        weekday: "long"
+      });
+  }
+  else if (q.startsWith("calculate")) {
+    const expression = q.replace("calculate", "").trim();
+    const match = expression.match(
+      /^(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)$/
+    );
+
+    if (!match) {
+      reply = "Please use a calculation like 25 + 30.";
+    } else {
+      const a = Number(match[1]);
+      const operator = match[2];
+      const b = Number(match[3]);
+
+      if (operator === "+") reply = "Answer: " + (a + b);
+      if (operator === "-") reply = "Answer: " + (a - b);
+      if (operator === "*") reply = "Answer: " + (a * b);
+      if (operator === "/") {
+        reply = b === 0
+          ? "Cannot divide by zero."
+          : "Answer: " + (a / b);
+      }
+    }
+  }
+  else if (q === "help" || q.includes("commands")) {
+    reply = "My commands are: Hello, Time, Date, Day, " +
+      "Calculate, Help, Clear, Who are you, Joke and Thank you.";
+  }
+  else if (q.includes("clear")) {
+    message.textContent = "JARVIS: Conversation cleared.";
+    input.value = "";
+    return;
+  }
+  else if (q.includes("who are you")) {
+    reply = "I am JARVIS, your personal browser-based assistant.";
+  }
+  else if (q.includes("joke")) {
+    reply = "Why did the computer go to the doctor? " +
+      "Because it had a virus!";
+  }
+  else if (q.includes("thank")) {
+    reply = "You're welcome! Always happy to help.";
+  }
+  else {
+    reply = "I don't know that command yet. Type HELP to see my commands.";
+  }
+
+  message.replaceChildren();
+
+  const you = document.createElement("strong");
+  you.textContent = "YOU: ";
+  message.appendChild(you);
+  message.appendChild(document.createTextNode(question));
+
+  const answer = document.createElement("p");
+  const heading = document.createElement("strong");
+  heading.textContent = "JARVIS: ";
+  answer.appendChild(heading);
+  answer.appendChild(document.createTextNode(reply));
+  message.appendChild(answer);
+
+  input.value = "";
+}
+
+function speakReply() {
+  if (!("speechSynthesis" in window)) {
+    alert("Speech is not supported in this browser.");
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const text = document.getElementById("message").innerText;
+  speechSynthesis.speak(
+    new SpeechSynthesisUtterance(text)
+  );
+}
+
+function startVoice() {
+  const Recognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!Recognition) {
+    alert("Voice recognition is not supported. Try Chrome.");
+    return;
+  }
+
+  const recognition = new Recognition();
+  recognition.lang = "en-IN";
+
+  recognition.onstart = function() {
+    document.getElementById("status").textContent =
+      "LISTENING...";
+  };
+
+  recognition.onresult = function(event) {
+    document.getElementById("userInput").value =
+      event.results[0][0].transcript;
+    sendMessage();
+  };
+
+  recognition.onerror = function() {
+    document.getElementById("status").textContent =
+      "VOICE ERROR";
+  };
+
+  recognition.onend = function() {
+    document.getElementById("status").textContent =
+      "SYSTEM ONLINE";
+  };
+
+  recognition.start();
+}
+
 
 </body>
 </html>
