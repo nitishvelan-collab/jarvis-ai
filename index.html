@@ -3,384 +3,216 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS AI</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS Personal AI</title>
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;padding:20px;
+  background:radial-gradient(circle,#123b58,#020711 75%);
+  color:#e5faff;font-family:Arial,sans-serif;
+  display:flex;justify-content:center;align-items:center
 }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: radial-gradient(circle, #123b58, #020711 75%);
-  color: #e5faff;
-  font-family: Arial, sans-serif;
-  display: grid;
-  place-items: center;
-  padding: 20px;
+.app{width:100%;max-width:650px}
+h1{text-align:center;color:#36dfff;letter-spacing:5px}
+.orb{
+  width:110px;height:110px;border-radius:50%;
+  margin:20px auto;background:#08bce9;
+  box-shadow:0 0 25px #08bce9,0 0 65px #087da8;
+  animation:pulse 2s infinite
 }
-
-.app {
-  width: 100%;
-  max-width: 700px;
-  text-align: center;
+@keyframes pulse{50%{box-shadow:0 0 45px #08bce9,0 0 90px #087da8}}
+.panel{
+  background:#071b2c;border:1px solid #087da8;
+  border-radius:14px;padding:16px;margin:12px 0
 }
-
-h1 {
-  color: #42d9ff;
-  letter-spacing: 8px;
-  text-shadow: 0 0 20px #168bbd;
+button,input,textarea{
+  width:100%;padding:12px;margin:6px 0;
+  border-radius:8px;border:1px solid #159ac1;
+  background:#102c42;color:white;font-size:15px
 }
-
-.status {
-  color: #73dfff;
-  letter-spacing: 3px;
-  font-size: 13px;
-}
-
-.orb {
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  border: 2px solid #42d9ff;
-  box-shadow: 0 0 30px #168bbd, inset 0 0 30px #168bbd;
-  display: grid;
-  place-items: center;
-  font-size: 55px;
-  color: #8cecff;
-  margin: 30px auto;
-}
-
-.message {
-  background: #071827;
-  border: 1px solid #176080;
-  border-radius: 12px;
-  padding: 20px;
-  min-height: 110px;
-  text-align: left;
-  line-height: 1.7;
-  margin: 20px 0;
-  overflow-wrap: anywhere;
-}
-
-.controls {
-  display: flex;
-  gap: 10px;
-}
-
-input {
-  flex: 1;
-  min-width: 0;
-  padding: 14px;
-  border-radius: 8px;
-  border: 1px solid #2585a8;
-  background: #071827;
-  color: white;
-  font-size: 16px;
-}
-
-button {
-  padding: 13px 18px;
-  border: 0;
-  border-radius: 8px;
-  background: #13a9d2;
-  color: #00131d;
-  font-weight: bold;
-  cursor: pointer;
-  margin: 5px;
-}
-
-button:hover {
-  background: #69e4ff;
-}
-
-small {
-  display: block;
-  margin-top: 25px;
-  color: #8caebe;
-}
-
-@media(max-width: 500px) {
-  .controls {
-    flex-wrap: wrap;
-  }
-  input {
-    flex-basis: 100%;
-  }
-}
+button{cursor:pointer;background:#087da8}
+button:hover{background:#0b9bc8}
+textarea{min-height:100px;resize:vertical}
+#messages{min-height:100px;white-space:pre-wrap;overflow-wrap:anywhere}
+.small{color:#9bd9ed;font-size:13px}
 </style>
 </head>
-
 <body>
+<div class="app">
+<h1>J.A.R.V.I.S</h1>
+<div class="orb"></div>
+<p style="text-align:center;color:#36dfff">PERSONAL VOICE ASSISTANT</p>
 
-<main class="app">
+<div class="panel">
+  <div id="status">System ready. Select a file or give a command.</div>
+  <div id="messages">JARVIS: Hello! How can I help you?</div>
+</div>
 
-  <h1>J.A.R.V.I.S</h1>
+<div class="panel">
+  <input id="command" placeholder="Type a command or use the microphone">
+  <button onclick="sendCommand()">SEND COMMAND</button>
+  <button onclick="startVoice()">🎤 SPEAK TO JARVIS</button>
+  <button onclick="speakReply()">🔊 READ LAST REPLY</button>
+</div>
 
-  <div class="status">PERSONAL AI ASSISTANT</div>
+<div class="panel">
+  <b>MY FILES</b>
+  <p class="small">Choose a text file to let JARVIS read it.</p>
+  <input type="file" id="filePicker" accept=".txt,.md,.csv,.json">
+  <button onclick="readFile()">READ SELECTED FILE</button>
+  <textarea id="fileText" placeholder="Selected file content appears here..." readonly></textarea>
+</div>
 
-  <div class="orb">✦</div>
-
-  <div class="status" id="status">
-    SYSTEM ONLINE
-  </div>
-
-  <div class="message" id="message">
-    <strong>JARVIS:</strong>
-    Hello! Your JARVIS interface is ready.
-    How can I help you?
-  </div>
-
-  <div class="controls">
-    <input id="userInput" placeholder="Type your message...">
-    <button onclick="sendMessage()">SEND</button>
-  </div>
-
-  <button onclick="startVoice()">🎙 SPEAK</button>
-
-  <button onclick="speakReply()">🔊 READ ALOUD</button>
-
-  <small>JARVIS AI • VERSION 1.0</small>
-
-</main>
+<div class="panel">
+  <b>CLIPBOARD</b>
+  <button onclick="copyReply()">COPY LAST REPLY</button>
+  <button onclick="pasteClipboard()">PASTE FROM CLIPBOARD</button>
+  <p class="small">You can paste copied text into another application using Ctrl + V.</p>
+</div>
 
 <script>
+let lastReply = "Hello! How can I help you?";
 
-function sendMessage() {
-
-  const input = document.getElementById("userInput");
-  const question = input.value.trim();
-
-  if (!question) return;
-
-  const message = document.getElementById("message");
-
-  const you = document.createElement("strong");
-  you.textContent = "YOU: ";
-
-  const userText = document.createElement("div");
-  userText.textContent = question;
-
-  const jarvis = document.createElement("div");
-
-  const heading = document.createElement("strong");
-  heading.textContent = "JARVIS: ";
-
-  jarvis.appendChild(heading);
-  jarvis.appendChild(document.createTextNode(
-    "I received your message! My AI brain is not connected yet."
-  ));
-
-  message.replaceChildren(
-    you,
-    userText,
-    document.createElement("br"),
-    jarvis
-  );
-
-  input.value = "";
+function showReply(text) {
+  lastReply = text;
+  document.getElementById("messages").textContent =
+    "JARVIS: " + text;
+  document.getElementById("status").textContent = "Ready";
 }
 
-function speakReply() {
+function sendCommand() {
+  const box = document.getElementById("command");
+  const command = box.value.trim();
+  if (!command) return;
 
-  if (!("speechSynthesis" in window)) {
-    alert("Speech is not supported in this browser.");
+  document.getElementById("messages").textContent =
+    "YOU: " + command;
+  box.value = "";
+
+  const c = command.toLowerCase();
+  let answer = "I don't know that command yet. Try saying help.";
+
+  if (c.includes("hello") || c.includes("hi jarvis")) {
+    answer = "Hello! I am JARVIS, your personal assistant.";
+  }
+  else if (c.includes("your name")) {
+    answer = "My name is JARVIS. I am your personal browser assistant.";
+  }
+  else if (c.includes("time")) {
+    answer = "The time is " +
+      new Date().toLocaleTimeString("en-IN");
+  }
+  else if (c.includes("date") || c.includes("today")) {
+    answer = "Today's date is " +
+      new Date().toLocaleDateString("en-IN");
+  }
+  else if (c.includes("read file")) {
+    answer = "Please select a file and press Read Selected File.";
+  }
+  else if (c.includes("help")) {
+    answer = "You can ask for the time, date, calculations, or say read file. You can also select a text file, copy my reply, and paste clipboard text.";
+  }
+  else if (c.startsWith("copy ")) {
+    answer = command.substring(5);
+  }
+  else if (/^[0-9+\-*/().\s]+$/.test(command)) {
+    try {
+      const result = Function(
+        '"use strict"; return (' + command + ')'
+      )();
+      answer = Number.isFinite(result)
+        ? "The answer is " + result
+        : "That calculation is not valid.";
+    } catch {
+      answer = "I could not calculate that.";
+    }
+  }
+
+  showReply(answer);
+}
+
+function readFile() {
+  const picker = document.getElementById("filePicker");
+  const file = picker.files[0];
+
+  if (!file) {
+    showReply("Please select a file first.");
     return;
   }
 
+  const reader = new FileReader();
+  reader.onload = function() {
+    document.getElementById("fileText").value = reader.result;
+    showReply("I have opened " + file.name +
+      ". You can now read its text below.");
+  };
+  reader.onerror = function() {
+    showReply("I could not read that file.");
+  };
+  reader.readAsText(file);
+}
+
+function copyReply() {
+  navigator.clipboard.writeText(lastReply)
+    .then(() => showReply("Last reply copied to clipboard."))
+    .catch(() => showReply("Clipboard access was blocked. Check browser permissions."));
+}
+
+async function pasteClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById("command").value = text;
+    showReply("Clipboard text pasted into the command box.");
+  } catch {
+    showReply("Clipboard permission was blocked by your browser.");
+  }
+}
+
+function speakReply() {
+  if (!("speechSynthesis" in window)) {
+    showReply("Speech output is not supported in this browser.");
+    return;
+  }
   speechSynthesis.cancel();
-
-  const text = document.getElementById("message").innerText;
-
-  const speech = new SpeechSynthesisUtterance(text);
-
+  const speech = new SpeechSynthesisUtterance(lastReply);
+  speech.lang = "en-IN";
   speechSynthesis.speak(speech);
 }
 
 function startVoice() {
-
   const Recognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!Recognition) {
-    alert("Voice recognition is not supported. Try Chrome.");
-    return;
-  }
-
-  const recognition = new Recognition();
-
-  recognition.lang = "en-IN";
-
-  recognition.onstart = function() {
-    document.getElementById("status").textContent =
-      "LISTENING...";
-  };
-
-  recognition.onresult = function(event) {
-    document.getElementById("userInput").value =
-      event.results[0][0].transcript;
-
-    sendMessage();
-  };
-
-  recognition.onerror = function() {
-    document.getElementById("status").textContent =
-      "VOICE ERROR";
-  };
-
-  recognition.onend = function() {
-    document.getElementById("status").textContent =
-      "SYSTEM ONLINE";
-  };
-
-  recognition.start();
-}
-
-
-function sendMessage() {
-  const input = document.getElementById("userInput");
-  const question = input.value.trim();
-
-  if (!question) return;
-
-  const message = document.getElementById("message");
-  const q = question.toLowerCase();
-  let reply = "";
-
-  if (q.includes("hello") || q.includes("hi")) {
-    reply = "Hello! Welcome back. How can I help you?";
-  }
-  else if (q.includes("time")) {
-    reply = "The current time is " +
-      new Date().toLocaleTimeString("en-IN");
-  }
-  else if (q.includes("date") || q.includes("today")) {
-    reply = "Today's date is " +
-      new Date().toLocaleDateString("en-IN");
-  }
-  else if (q.includes("day")) {
-    reply = "Today is " +
-      new Date().toLocaleDateString("en-IN", {
-        weekday: "long"
-      });
-  }
-  else if (q.startsWith("calculate")) {
-    const expression = q.replace("calculate", "").trim();
-    const match = expression.match(
-      /^(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)$/
-    );
-
-    if (!match) {
-      reply = "Please use a calculation like 25 + 30.";
-    } else {
-      const a = Number(match[1]);
-      const operator = match[2];
-      const b = Number(match[3]);
-
-      if (operator === "+") reply = "Answer: " + (a + b);
-      if (operator === "-") reply = "Answer: " + (a - b);
-      if (operator === "*") reply = "Answer: " + (a * b);
-      if (operator === "/") {
-        reply = b === 0
-          ? "Cannot divide by zero."
-          : "Answer: " + (a / b);
-      }
-    }
-  }
-  else if (q === "help" || q.includes("commands")) {
-    reply = "My commands are: Hello, Time, Date, Day, " +
-      "Calculate, Help, Clear, Who are you, Joke and Thank you.";
-  }
-  else if (q.includes("clear")) {
-    message.textContent = "JARVIS: Conversation cleared.";
-    input.value = "";
-    return;
-  }
-  else if (q.includes("who are you")) {
-    reply = "I am JARVIS, your personal browser-based assistant.";
-  }
-  else if (q.includes("joke")) {
-    reply = "Why did the computer go to the doctor? " +
-      "Because it had a virus!";
-  }
-  else if (q.includes("thank")) {
-    reply = "You're welcome! Always happy to help.";
-  }
-  else {
-    reply = "I don't know that command yet. Type HELP to see my commands.";
-  }
-
-  message.replaceChildren();
-
-  const you = document.createElement("strong");
-  you.textContent = "YOU: ";
-  message.appendChild(you);
-  message.appendChild(document.createTextNode(question));
-
-  const answer = document.createElement("p");
-  const heading = document.createElement("strong");
-  heading.textContent = "JARVIS: ";
-  answer.appendChild(heading);
-  answer.appendChild(document.createTextNode(reply));
-  message.appendChild(answer);
-
-  input.value = "";
-}
-
-function speakReply() {
-  if (!("speechSynthesis" in window)) {
-    alert("Speech is not supported in this browser.");
-    return;
-  }
-
-  speechSynthesis.cancel();
-
-  const text = document.getElementById("message").innerText;
-  speechSynthesis.speak(
-    new SpeechSynthesisUtterance(text)
-  );
-}
-
-function startVoice() {
-  const Recognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-  if (!Recognition) {
-    alert("Voice recognition is not supported. Try Chrome.");
+    showReply("Voice recognition is not supported. Try Chrome.");
     return;
   }
 
   const recognition = new Recognition();
   recognition.lang = "en-IN";
-
-  recognition.onstart = function() {
-    document.getElementById("status").textContent =
-      "LISTENING...";
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    document.getElementById("status").textContent = "Listening...";
   };
-
-  recognition.onresult = function(event) {
-    document.getElementById("userInput").value =
+  recognition.onresult = event => {
+    document.getElementById("command").value =
       event.results[0][0].transcript;
-    sendMessage();
+    sendCommand();
   };
-
-  recognition.onerror = function() {
-    document.getElementById("status").textContent =
-      "VOICE ERROR";
+  recognition.onerror = () => {
+    showReply("I could not hear you. Please try again.");
   };
-
-  recognition.onend = function() {
-    document.getElementById("status").textContent =
-      "SYSTEM ONLINE";
+  recognition.onend = () => {
+    document.getElementById("status").textContent = "Ready";
   };
-
   recognition.start();
 }
 
-
+document.getElementById("command").addEventListener("keydown", e => {
+  if (e.key === "Enter") sendCommand();
+});
+</script>
+</div>
 </body>
 </html>
